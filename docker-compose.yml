@@ -13,12 +13,18 @@ services:
     volumes:
       - "./conf.d:/etc/mysql/conf.d:ro"
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      retries: 3
+      timeout: 5s
   
   petclinic:
     image: elymoral/spring-petclinic:latest
     container_name: spring-petclinic
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     ports:
       - "8080:8080"
 
